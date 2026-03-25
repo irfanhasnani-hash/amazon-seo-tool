@@ -18,12 +18,23 @@ def create_pdf(score, report, asin="N/A"):
     pdf.cell(200, 10, f"Overall SEO Score: {score}/100", ln=True)
     pdf.ln(4)
     pdf.set_font("Arial", "", 11)
+
+    emoji_map = {
+        "✅": "[PASS]", "❌": "[FAIL]", "⚠️": "[WARN]", "🚫": "[ALERT]",
+        "💡": "[TIP]", "🔍": "[INFO]", "🏆": "[GRADE A]", "🥈": "[GRADE B]",
+        "🥉": "[GRADE C]", "📌": ">>", "📊": ">>", "█": "#", "░": "-",
+        "**": "", "───": "---",
+    }
+
     for line in report:
-        clean = (line.replace("✅","[PASS]").replace("❌","[FAIL]")
-                    .replace("⚠️","[WARN]").replace("🚫","[ALERT]")
-                    .replace("💡","[TIP]").replace("🔍","[INFO]")
-                    .replace("**",""))
+        clean = line
+        for emoji, replacement in emoji_map.items():
+            clean = clean.replace(emoji, replacement)
+        # Replace common problematic characters from user input
+clean = clean.replace("\u2013", "-").replace("\u2014", "-").replace("\u2018", "'").replace("\u2019", "'").replace("\u201c", '"').replace("\u201d", '"')
+clean = clean.encode("latin-1", errors="ignore").decode("latin-1")
         pdf.multi_cell(0, 8, clean)
+
     return pdf.output(dest="S").encode("latin-1")
 
 # ─────────────────────────────────────────────
